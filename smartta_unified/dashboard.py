@@ -254,6 +254,26 @@ def render_instructor_dashboard() -> None:
     else:
         st.caption("No repeated questions yet.")
 
+    st.markdown("### ☁️ Common Words in Student Questions")
+    st.caption("Shows most frequent keywords extracted from student questions.")
+    try:
+        from wordcloud import WordCloud
+
+        text_data = " ".join(df["question"].dropna().astype(str))
+        if text_data.strip():
+            wc = WordCloud(
+                width=1000,
+                height=500,
+                background_color="black",
+                colormap="cool",
+                max_words=150,
+            ).generate(text_data)
+            st.image(wc.to_array(), caption="Top keywords from student questions", use_container_width=True)
+        else:
+            st.info("No questions available yet to generate a word cloud.")
+    except Exception as exc:
+        st.warning(f"WordCloud generation skipped (install 'wordcloud' & 'matplotlib'): {exc}")
+
     st.markdown("### ⏱️ Engagement Heatmap (Hour × Day)")
     ts = df["ts"].dropna()
     day_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
