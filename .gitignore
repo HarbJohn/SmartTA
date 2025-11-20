@@ -1,0 +1,41 @@
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Python cache / bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.mypy_cache/
+.pytest_cache/
+.cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+.env.*
+
+# Local config
+*.local
+
+# Tooling / IDE
+.idea/
+.vscode/
+
+# Build / packaging artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Streamlit cache
+.streamlit/
+
+# Logs
+*.log
