@@ -28,6 +28,29 @@ def _append_feedback(entry: dict) -> None:
     pd.DataFrame([entry]).to_csv(FEEDBACK_FILE, mode="a", index=False, header=header)
 
 
+def render_feedback_summary(title: str | None = "### 📝 Course Feedback Snapshot") -> None:
+    """Reusable summary widget for instructor/professor dashboards."""
+    feedback_df = _load_feedback_data()
+    if title:
+        st.markdown(title)
+    if feedback_df.empty:
+        st.caption("No survey responses recorded yet.")
+        return
+
+    st.caption(f"Collected responses: {len(feedback_df)}")
+    satisfied_rate = (feedback_df["satisfied"] == "Yes").mean() if "satisfied" in feedback_df else 0
+    engaging_rate = (feedback_df["engaging"] == "Yes").mean() if "engaging" in feedback_df else 0
+    project_rate = (feedback_df["project_effective"] == "Yes").mean() if "project_effective" in feedback_df else 0
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Satisfied", f"{satisfied_rate * 100:0.0f}%")
+    c2.metric("Engaged in class", f"{engaging_rate * 100:0.0f}%")
+    c3.metric("Project approach effective", f"{project_rate * 100:0.0f}%")
+
+    with st.expander("Latest responses"):
+        st.dataframe(feedback_df.tail(10), use_container_width=True)
+
+
 def render_course_feedback() -> None:
     st.markdown("## 📝 Course Feedback Survey")
     st.caption("Anonymous survey results are stored locally in data/course_feedback.csv.")
@@ -77,17 +100,4 @@ def render_course_feedback() -> None:
             _append_feedback(entry)
             st.success("✅ Thank you! Your feedback has been recorded.")
             feedback_df = pd.concat([feedback_df, pd.DataFrame([entry])], ignore_index=True)
-
-    if not feedback_df.empty:
-        st.caption(f"Collected responses: {len(feedback_df)}")
-        satisfied_rate = (feedback_df["satisfied"] == "Yes").mean() if "satisfied" in feedback_df else 0
-        engaging_rate = (feedback_df["engaging"] == "Yes").mean() if "engaging" in feedback_df else 0
-        project_rate = (feedback_df["project_effective"] == "Yes").mean() if "project_effective" in feedback_df else 0
-        fc1, fc2, fc3 = st.columns(3)
-        fc1.metric("Satisfied", f"{satisfied_rate * 100:0.0f}%")
-        fc2.metric("Engaged in class", f"{engaging_rate * 100:0.0f}%")
-        fc3.metric("Project approach effective", f"{project_rate * 100:0.0f}%")
-        with st.expander("Latest responses"):
-            st.dataframe(feedback_df.tail(10), use_container_width=True)
-    else:
-        st.caption("No survey responses recorded yet.")
+    st.caption("Aggregated feedback insights are available in the Instructor and Professor dashboards.")

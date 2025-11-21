@@ -7,6 +7,7 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 from . import config
+from .feedback import render_feedback_summary
 from .helpers import read_logs_df
 
 
@@ -350,3 +351,6 @@ def render_instructor_dashboard() -> None:
         mime="text/csv",
         use_container_width=True,
     )
+
+    st.markdown("---")
+    render_feedback_summary()

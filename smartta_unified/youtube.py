@@ -7,6 +7,7 @@ import json
 import streamlit as st
 
 from . import config
+from .feedback import render_feedback_summary
 from .helpers import ext_cwd
 
 
@@ -84,3 +85,5 @@ def render_professor_dashboard() -> None:
             UPLOADS_DIR=str(config.EXT_UPLOADS),
             lecture_categories=lecture_categories,
         )
+    st.markdown("---")
+    render_feedback_summary()
