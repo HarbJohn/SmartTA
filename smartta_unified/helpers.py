@@ -18,6 +18,7 @@ from . import config
 def aub_logo_path() -> Optional[str]:
     """Return the preferred AUB logo path if available."""
     candidates = [
+        Path(__file__).resolve().parent / "aub_logo.png",
         config.SMARTTA_RAG_DIR / "UI" / "aub_logo.png",
         config.SMARTTA_RAG_DIR / "aub_logo.png",
     ]

@@ -6,7 +6,6 @@ from datetime import date, datetime
 import altair as alt
 import pandas as pd
 import streamlit as st
-
 from . import config
 from .helpers import read_logs_df
 

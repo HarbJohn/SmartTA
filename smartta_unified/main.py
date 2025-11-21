@@ -17,6 +17,7 @@ if str(_PROJECT_ROOT) not in sys.path:
 from smartta_unified import config
 from smartta_unified.chat import ensure_session_defaults, render_student_chat
 from smartta_unified.dashboard import render_instructor_dashboard
+from smartta_unified.feedback import render_course_feedback
 from smartta_unified.style import BASE_STYLES
 from smartta_unified.youtube import render_professor_dashboard, render_youtube_library
 
@@ -50,6 +51,8 @@ def _render_mode_selector() -> str:
     if config.ENABLE_YOUTUBE:
         labels.append("🎯 Professor Dashboard")
         modes.append("Professor")
+    labels.append("📝 Course Feedback")
+    modes.append("Feedback")
     if not modes:
         labels, modes = ["🎓 Student Assistant"], ["Student"]
 
@@ -141,6 +144,8 @@ def run() -> None:
             st.session_state.authenticated = False
             st.rerun()
         render_professor_dashboard()
+    elif mode == "Feedback":
+        render_course_feedback()
     else:
         st.error("Unknown mode selected.")
 
