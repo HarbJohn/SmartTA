@@ -402,48 +402,7 @@ def render_student_tab(
             st.markdown("---")
             render_search_results(st.session_state["last_search_results"], st.session_state["last_search_query"])
 
-        if st.session_state.get("last_search_results") and st.session_state.get("last_search_query"):
-            st.markdown("")
-            with st.expander("🧠 Generate concise answer (with citations)", expanded=False):
-                if st.button("Compose Answer", key="compose_answer_btn", use_container_width=True):
-                    q = st.session_state["last_search_query"]
-                    rs = st.session_state["last_search_results"][:3]
-                    try:
-                        sentences = []
-                        for r in rs:
-                            for s in re.split(r"(?<=[.!?])\s+", r.get("text", "")):
-                                if 6 <= len(s.split()) <= 36:
-                                    sentences.append((s, r))
-                        scored = sorted(((token_overlap_score(q, s), s, r) for s, r in sentences), key=lambda x: x[0], reverse=True)
-                        picked = []
-                        seen = set()
-                        for _, s, r in scored:
-                            if len(picked) >= 4:
-                                break
-                            sig = s.strip().lower()
-                            if sig in seen:
-                                continue
-                            seen.add(sig)
-                            picked.append((s, r))
-                        if not picked and rs:
-                            picked = [(rs[0].get("text", "")[:180] + "…", rs[0])]
-                        answer = " ".join(s for s, _ in picked)
-                        st.markdown(f"**Answer:** {answer}")
-                        st.markdown("**Citations:**")
-                        cites = []
-                        for _, r in picked:
-                            lec = r.get("lecture")
-                            vid = get_video_id_from_title(lec)
-                            ts = int(r.get("start", 0))
-                            tstr = str(datetime.timedelta(seconds=ts))
-                            if vid:
-                                url = f"https://youtu.be/{vid}?t={ts}"
-                                cites.append(f"- [{lec} @ {tstr}]({url})")
-                            else:
-                                cites.append(f"- {lec} @ {tstr}")
-                        st.markdown("\n".join(cites))
-                    except Exception:
-                        st.info("Could not compose an answer. Try refining your question.")
+        # Removed X-Ray expander for concise summary generation to simplify UI
 
     st.markdown("---")
     st.markdown("## Course Materials")

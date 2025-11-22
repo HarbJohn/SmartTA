@@ -27,7 +27,6 @@ def render_youtube_library() -> None:
 
     st.markdown("---")
     st.markdown("## 📚 Lecture Library & Search (YouTube)")
-    st.caption("Search transcribed lectures with semantic search")
 
     render_tab, load_lectures, categorize, reindex = deps  # type: ignore
 

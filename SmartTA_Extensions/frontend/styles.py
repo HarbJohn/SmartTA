@@ -200,7 +200,6 @@ def render_search_header():
     st.markdown("""
 <div class="ta-header">
     <h2>💬 Ask the TA</h2>
-    <p>🔍 Semantic search across all lecture transcripts with AI-powered relevance ranking</p>
 </div>
 """, unsafe_allow_html=True)
 
