@@ -46,10 +46,10 @@ def _render_mode_selector() -> str:
         labels.append("🎓 Student Assistant")
         modes.append("Student")
     if config.ENABLE_RAG:
-        labels.append("📊 Instructor Dashboard")
+        labels.append("📊 Slides Instructor Dashboard")
         modes.append("Instructor")
     if config.ENABLE_YOUTUBE:
-        labels.append("🎯 Professor Dashboard")
+        labels.append("🎯 YouTube Instructor Dashboard")
         modes.append("Professor")
     labels.append("📝 Course Feedback")
     modes.append("Feedback")
@@ -126,20 +126,20 @@ def run() -> None:
             render_youtube_library()
     elif mode == "Instructor":
         if not config.ENABLE_RAG or not config.rag_engine1:
-            st.warning("Instructor dashboard requires the RAG engine.")
+            st.warning("Slides Instructor Dashboard requires the RAG engine.")
             return
         _require_login()
-        st.markdown("## 🧑‍🏫 Instructor Dashboard (RAG)")
+        st.markdown("## 🧑‍🏫 Slides Instructor Dashboard (RAG)")
         if st.button("🚪 Logout"):
             st.session_state.authenticated = False
             st.rerun()
         render_instructor_dashboard()
     elif mode == "Professor":
         if not config.ENABLE_YOUTUBE:
-            st.warning("Professor dashboard requires the YouTube extensions.")
+            st.warning("YouTube Instructor Dashboard requires the YouTube extensions.")
             return
         _require_login()
-        st.markdown("## 🎯 Professor Dashboard (YouTube)")
+        st.markdown("## 🎯 YouTube Instructor Dashboard")
         if st.button("🚪 Logout"):
             st.session_state.authenticated = False
             st.rerun()

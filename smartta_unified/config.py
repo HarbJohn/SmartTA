@@ -8,9 +8,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
 
-# ---------------------------------------------------------------------------
+
 # Environment defaults
-# ---------------------------------------------------------------------------
+
 _ENV_DEFAULTS = {
     "OBJC_DISABLE_INITIALIZE_FORK_SAFETY": "YES",
     "KMP_DUPLICATE_LIB_OK": "TRUE",
@@ -24,9 +24,7 @@ _ENV_DEFAULTS = {
 for _key, _val in _ENV_DEFAULTS.items():
     os.environ.setdefault(_key, _val)
 
-# ---------------------------------------------------------------------------
 # Paths
-# ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SMARTTA_RAG_DIR = PROJECT_ROOT / "SmartTA_RAG"
 SMARTTA_EXT_DIR = PROJECT_ROOT / "SmartTA_Extensions"
@@ -60,13 +58,11 @@ def _load_env_file(path: Path) -> None:
 _load_env_file(PROJECT_ROOT / ".env")
 _load_env_file(SMARTTA_RAG_DIR / ".env")
 
-# ---------------------------------------------------------------------------
 # External modules
-# ---------------------------------------------------------------------------
 try:  # rag engine (new package)
     from smartta_unified import rag as rag_engine1  # type: ignore
     RAG_IMPORT_ERROR = None
-except Exception as exc:  # pragma: no cover - handled at runtime
+except Exception as exc:  #   handled at runtime
     try:
         import rag_engine1  # type: ignore
         RAG_IMPORT_ERROR = exc
@@ -82,7 +78,7 @@ try:  # Streamlit extensions
         load_youtube_lectures,
     )
     from SmartTA_Extensions.backend.indexing import reindex_if_needed  # type: ignore
-except Exception as exc:  # pragma: no cover - runtime feedback only
+except Exception as exc:  #  no cover - runtime feedback only
     render_student_tab = None
     render_professor_tab = None
     load_youtube_lectures = None
@@ -94,12 +90,12 @@ else:
 
 try:  # Optional deps
     import psutil  # type: ignore
-except Exception:  # pragma: no cover - optional
+except Exception:  #  no cover - optional
     psutil = None
 
 try:
     from sklearn.feature_extraction.text import CountVectorizer  # type: ignore
-except Exception:  # pragma: no cover - optional
+except Exception:  #  no cover - optional
     CountVectorizer = None  # type: ignore
 
 
@@ -145,12 +141,10 @@ try:
         colors=colors,
         HRFlowable=HRFlowable,
     )
-except Exception:  # pragma: no cover - optional
+except Exception:  #  no cover - optional
     REPORTLAB_DEPS = None
 
-# ---------------------------------------------------------------------------
 # Data directories
-# ---------------------------------------------------------------------------
 APP_DATA_DIR = PROJECT_ROOT / "data"
 APP_DATA_DIR.mkdir(exist_ok=True)
 LOCAL_CHAT_LOG = APP_DATA_DIR / "chat_logs.ndjson"
@@ -172,9 +166,7 @@ EXT_LECTURES = EXT_DATA_DIR / "lectures"
 for _dir in (EXT_UPLOADS, EXT_TRANS, EXT_MODELS, EXT_LECTURES):
     _dir.mkdir(exist_ok=True)
 
-# ---------------------------------------------------------------------------
 # Feature flags
-# ---------------------------------------------------------------------------
 ENABLE_RAG = os.getenv("SMARTTA_ENABLE_RAG", "1") not in {"0", "false", "False"}
 ENABLE_YOUTUBE = os.getenv("SMARTTA_ENABLE_YOUTUBE", "1") not in {"0", "false", "False"}
 RAG_QUERY_LIMIT = int(os.getenv("SMARTTA_RAG_QUERY_LIMIT", "50"))
