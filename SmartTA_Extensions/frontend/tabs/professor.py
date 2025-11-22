@@ -25,8 +25,6 @@ from backend.analytics import (
     render_lecture_frequency_chart,
     render_query_timeline_analysis,
     render_query_patterns_over_time,
-    render_student_engagement_analysis,
-    render_learning_path_analysis,
 )
 
 logger = logging.getLogger(__name__)
@@ -742,6 +740,4 @@ def render_professor_tab(
         render_lecture_frequency_chart(df)
         render_query_timeline_analysis(df)
         st.markdown("### Advanced Analytics")
-        df = render_query_patterns_over_time(df)
-        render_student_engagement_analysis(df, helpers_get_all_lectures)
-        render_learning_path_analysis(df)
+        render_query_patterns_over_time(df)
