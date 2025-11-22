@@ -1,0 +1,22 @@
+[
+  {
+    "query": "what is machine learning",
+    "lecture": "01. What is Machine Learning"
+  },
+  {
+    "query": "gradient descent intuition",
+    "lecture": "16. Gradient Descent Intuition"
+  },
+  {
+    "query": "feature scaling",
+    "lecture": "23. Feature Scaling Part 1"
+  },
+  {
+    "query": "regularization cost function",
+    "lecture": "37. Cost Function with Regularization"
+  },
+  {
+    "query": "logistic regression decision boundary",
+    "lecture": "31. Decision Boundary"
+  }
+]
