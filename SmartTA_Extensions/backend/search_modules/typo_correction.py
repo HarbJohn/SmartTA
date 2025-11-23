@@ -78,7 +78,7 @@ def _build_corpus_vocabulary(metadata: list, min_freq: int = 3, min_length: int 
     return vocab
 
 
-def correct_typos(query: str, metadata: list = None, max_distance: int = 2) -> str:
+def correct_typos(query: str, metadata: list = None, max_distance: int = 2) -> tuple[str, list[tuple[str, str]]]:
     """Correct common typos in query using Levenshtein distance.
     
     Uses hybrid approach:
@@ -91,7 +91,7 @@ def correct_typos(query: str, metadata: list = None, max_distance: int = 2) -> s
         max_distance: Maximum edit distance to consider (default 2 for single typo)
         
     Returns:
-        Corrected query string
+        Tuple of (corrected_query, list of (original, corrected) pairs)
     """
     global _CORPUS_VOCAB
     
@@ -106,6 +106,7 @@ def correct_typos(query: str, metadata: list = None, max_distance: int = 2) -> s
     
     words = query.lower().split()
     corrected_words = []
+    corrections = []  # Track (original, corrected) pairs
     
     for word in words:
         # Strip punctuation for matching
@@ -163,8 +164,9 @@ def correct_typos(query: str, metadata: list = None, max_distance: int = 2) -> s
             else:
                 corrected = best_match
             corrected_words.append(corrected)
+            corrections.append((word, corrected))
             logger.info(f"Typo correction: '{word}' -> '{corrected}'")
         else:
             corrected_words.append(word)
     
-    return ' '.join(corrected_words)
+    return ' '.join(corrected_words), corrections

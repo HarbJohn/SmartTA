@@ -27,7 +27,9 @@ _STOPWORDS = {
     'but', 'not', 'than', 'there', 'here', 'where', 'when', 'why', 'who', 'which',
     'these', 'those', 'some', 'any', 'all', 'both', 'each', 'every', 'another', 'other',
     'such', 'no', 'nor', 'only', 'own', 'same', 'very', 'just', 'even', 'also', 'too',
-    'more', 'most', 'much', 'many', 'few', 'less', 'least'
+    'more', 'most', 'much', 'many', 'few', 'less', 'least', 'use', 'uses', 'used', 'using',
+    'get', 'gets', 'got', 'make', 'makes', 'made', 'take', 'takes', 'took', 'give', 'gives',
+    'gave', 'put', 'puts', 'see', 'saw', 'seen', 'go', 'goes', 'went', 'come', 'comes', 'came'
 }
 
 
@@ -76,6 +78,30 @@ def _prepare_bm25(metadata):
     }
     
     return corpus_tokens, idf, avg_len
+
+
+def get_cached_query_tokens(query: str):
+    """Get tokenized query from cache or tokenize and cache.
+    Cache limited to last 30 queries (LRU-style).
+    """
+    if 'query_token_cache' not in st.session_state:
+        st.session_state['query_token_cache'] = {}
+    
+    cache = st.session_state['query_token_cache']
+    if query in cache:
+        return cache[query]
+    
+    tokens = _tokenize(query)
+    cache[query] = tokens
+    
+    # Prune cache to 30 most recent queries
+    if len(cache) > 30:
+        # Keep only last 30 (remove oldest 20)
+        keys = list(cache.keys())
+        for key in keys[:-30]:
+            del cache[key]
+    
+    return tokens
 
 
 def bm25_score(query_tokens, doc_tokens, idf, avg_len, k1=1.2, b=0.75):
