@@ -186,20 +186,83 @@ def apply_search_ui_styles():
 
     /* Markdown text in results - highlight styling */
     .stMarkdown strong { background: rgba(245,158,11,0.2); color: #fbbf24; padding:0.125rem 0.25rem; border-radius:3px; font-weight:600; }
+    mark.smartta-highlight {
+        background: linear-gradient(120deg, #fbbf24 0%, #f59e0b 100%);
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-weight: 600;
+        color: #000;
+    }
 
     /* Animation for score badges */
     @keyframes slideIn { from { opacity:0; transform: translateX(-10px); } to { opacity:1; transform: translateX(0); } }
     .stMetric { animation: slideIn 0.3s ease; }
 
+    .ai-followup-wrapper { margin-top: 2rem; }
+    .ai-followup-header {
+        background: linear-gradient(135deg,#7b4397 0%,#dc2430 100%);
+        border-radius: 16px 16px 0 0;
+        padding: 1.75rem 2rem;
+        box-shadow: 0 10px 30px rgba(220,36,48,0.25);
+    }
+    .ai-followup-header h3 {
+        margin: 0;
+        color: #fff;
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+    .ai-followup-header p {
+        margin: 0.35rem 0 0 0;
+        color: rgba(255,255,255,0.9);
+        font-size: 0.95rem;
+    }
+    .ai-followup-card {
+        background: rgba(15,23,36,0.95);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-top: none;
+        border-radius: 0 0 18px 18px;
+        padding: 1.5rem;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+    }
+    .ai-followup-card .stButton>button {
+        background: linear-gradient(135deg,#ff5f6d 0%,#ffc371 100%) !important;
+        color: #1f2937 !important;
+        font-weight: 700;
+        border: none !important;
+        border-radius: 12px;
+        box-shadow: 0 14px 30px rgba(255,95,109,0.35);
+    }
+    .ai-followup-card .stSlider [data-testid="stTickBar"] > div {
+        background: rgba(255,255,255,0.08) !important;
+    }
+    .ai-followup-card [data-testid="stSlider"] div[data-testid="stThumbValue"] {
+        background: #ff5f6d !important;
+        border-color: #ffc371 !important;
+    }
+    .ai-followup-card [data-testid="stSlider"] div[role="slider"] {
+        background: #ff5f6d !important;
+        border: 2px solid #ffc371 !important;
+        box-shadow: 0 6px 15px rgba(255,95,109,0.4);
+    }
     </style>
     """, unsafe_allow_html=True)
 
 
 def render_search_header():
-    """Render styled 'Ask the TA' header with gradient background."""
+    """Render styled 'Ask the TA' header with gradient background and tip."""
     st.markdown("""
 <div class="ta-header">
     <h2>💬 Ask the TA</h2>
+    <p>Semantic search across all lecture transcripts with AI-powered relevance ranking.</p>
+</div>
+<div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%);
+            padding: 0.6rem 1rem; border-radius: 10px; margin: 0.75rem 0 1.1rem 0;
+            border-left: 3px solid #8b5cf6; font-size: 0.85rem; color: #9aa2b1;">
+    💡 <strong style="color: #a78bfa;">Tip:</strong> Use technical terms for best results 
+    (e.g., <code style="background: rgba(139, 92, 246, 0.2); padding: 2px 6px; border-radius: 4px; color: #c4b5fd;">SVM</code>, 
+    <code style="background: rgba(139, 92, 246, 0.2); padding: 2px 6px; border-radius: 4px; color: #c4b5fd;">gradient descent</code>, 
+    <code style="background: rgba(139, 92, 246, 0.2); padding: 2px 6px; border-radius: 4px; color: #c4b5fd;">overfitting</code>, 
+    <code style="background: rgba(139, 92, 246, 0.2); padding: 2px 6px; border-radius: 4px; color: #c4b5fd;">Classification</code>)
 </div>
 """, unsafe_allow_html=True)
 

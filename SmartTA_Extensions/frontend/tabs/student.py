@@ -6,6 +6,11 @@ import datetime
 from typing import Optional, Any
 import streamlit as st
 
+try:
+    from openai import OpenAI
+except Exception:  # pragma: no cover - OpenAI optional in some deployments
+    OpenAI = None
+
 from utils.helpers import (
     load_youtube_lectures,
     get_youtube_lectures_categorized,
@@ -100,6 +105,12 @@ def render_student_tab(
     st.sidebar.markdown("### 📊 Quick Stats")
     st.sidebar.metric("Total Slide Lectures", 6)
     st.sidebar.metric("Total Video Lectures", len(all_lectures))
+    st.session_state.setdefault("last_search_results", [])
+    st.session_state.setdefault("last_search_query", "")
+    st.session_state.setdefault("last_clicked_result", None)
+    st.session_state.setdefault("ai_followup_answer", None)
+    st.session_state.setdefault("ai_followup_sources", [])
+
     if st.session_state.get("last_search_results"):
         st.sidebar.metric("Last Search Results", len(st.session_state["last_search_results"]))
 
@@ -197,14 +208,9 @@ def render_student_tab(
                 st.session_state["last_search_results"] = []
                 st.session_state["last_search_query"] = ""
                 st.session_state["last_clicked_result"] = None
+                st.session_state["ai_followup_answer"] = None
+                st.session_state["ai_followup_sources"] = []
                 st.rerun()
-
-        if "last_search_results" not in st.session_state:
-            st.session_state["last_search_results"] = []
-        if "last_search_query" not in st.session_state:
-            st.session_state["last_search_query"] = ""
-        if "last_clicked_result" not in st.session_state:
-            st.session_state["last_clicked_result"] = None
 
         # The search pipeline below mirrors app.py logic exactly
         if do_search and query:
@@ -317,6 +323,8 @@ def render_student_tab(
                         st.session_state["last_search_results"] = results
                         st.session_state["last_search_query"] = query
                         st.session_state["last_clicked_result"] = None
+                        st.session_state["ai_followup_answer"] = None
+                        st.session_state["ai_followup_sources"] = []
                     finally:
                         progress_placeholder.empty()
                         status_placeholder.empty()
@@ -402,6 +410,105 @@ def render_student_tab(
             st.markdown("---")
             render_search_results(st.session_state["last_search_results"], st.session_state["last_search_query"])
 
+        if st.session_state.get("last_search_results"):
+            st.markdown("---")
+            st.markdown(
+                """
+                <div class="ai-followup-wrapper">
+                    <div class="ai-followup-header">
+                        <h3> Ask Follow-up Question (AI-powered)</h3>
+                        <p>Let the AI synthesize the retrieved lecture segments with citations.</p>
+                    </div>
+                    <div class="ai-followup-card">
+                """,
+                unsafe_allow_html=True,
+            )
+            max_segments = min(6, len(st.session_state["last_search_results"]))
+            with st.form("ai_followup_form", clear_on_submit=False):
+                followup_query = st.text_input(
+                    "Ask a follow-up question:",
+                    key="followup_query_input",
+                    placeholder="e.g., Summarize the steps of gradient descent",
+                )
+                top_k = st.slider(
+                    "Use top segments",
+                    min_value=1,
+                    max_value=max_segments,
+                    value=min(3, max_segments),
+                    help="Choose how many of the most relevant segments to summarize",
+                )
+                ask_ai = st.form_submit_button("💡 Ask AI", use_container_width=True, type="primary")
+
+            st.markdown("</div></div>", unsafe_allow_html=True)
+
+            if ask_ai:
+                if not followup_query.strip():
+                    st.warning("Please enter a follow-up question for the AI assistant.")
+                elif not os.getenv("OPENAI_API_KEY"):
+                    st.error("OpenAI API key not found. Please set OPENAI_API_KEY to use AI answers.")
+                elif OpenAI is None:
+                    st.error("OpenAI client unavailable. Install the openai package to enable AI answers.")
+                else:
+                    top_segments = st.session_state["last_search_results"][:top_k]
+                    context_lines = []
+                    for idx, seg in enumerate(top_segments, 1):
+                        snippet = seg.get("text", "").strip().replace("\n", " ")
+                        lecture = seg.get("lecture", "Unknown lecture")
+                        start_ts = int(seg.get("start", 0))
+                        timestamp = str(datetime.timedelta(seconds=start_ts))
+                        context_lines.append(
+                            f"[{idx}] Lecture: {lecture} (timestamp {timestamp})\n{snippet}"
+                        )
+                    context_blob = "\n\n".join(context_lines)
+                    original_q = st.session_state.get("last_search_query", "")
+                    try:
+                        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+                        with st.spinner("Generating AI answer…"):
+                            response = client.chat.completions.create(
+                                model="gpt-4o-mini",
+                                temperature=0.5,
+                                max_tokens=600,
+                                messages=[
+                                    {
+                                        "role": "system",
+                                        "content": (
+                                            "You are a helpful teaching assistant. "
+                                            "Use ONLY the provided lecture excerpts to answer and cite them like [1], [2]."
+                                        ),
+                                    },
+                                    {
+                                        "role": "user",
+                                        "content": (
+                                            f"Original question: {original_q}\n\n"
+                                            f"Lecture segments:\n{context_blob}\n\n"
+                                            f"Follow-up question: {followup_query}\n\n"
+                                            "Answer the follow-up question using only these segments."
+                                        ),
+                                    },
+                                ],
+                            )
+                        answer_text = response.choices[0].message.content.strip()
+                        st.session_state["ai_followup_answer"] = answer_text
+                        st.session_state["ai_followup_sources"] = top_segments
+                    except Exception as exc:
+                        st.error(f"OpenAI call failed. Check OPENAI_API_KEY. ({exc})")
+
+            if st.session_state.get("ai_followup_answer"):
+                st.markdown("#### 🧠 AI Answer")
+                st.markdown(st.session_state["ai_followup_answer"])
+                if st.session_state.get("ai_followup_sources"):
+                    st.markdown("---")
+                    st.markdown("**🎯 Source Segments:**")
+                    for idx, seg in enumerate(st.session_state["ai_followup_sources"], 1):
+                        lecture = seg.get("lecture", "Unknown lecture")
+                        ts = int(seg.get("start", 0))
+                        duration = str(datetime.timedelta(seconds=ts))
+                        vid = get_video_id_from_title(lecture)
+                        if vid:
+                            url = f"https://youtu.be/{vid}?t={ts}"
+                            st.markdown(f"{idx}. **{lecture}** @ {duration} — [{url}]({url})")
+                        else:
+                            st.markdown(f"{idx}. **{lecture}** @ {duration}")
         # Removed X-Ray expander for concise summary generation to simplify UI
 
     st.markdown("---")

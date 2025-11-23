@@ -185,7 +185,15 @@ def _render_lecture_results(items: List[Tuple[int, Dict[str, Any]]], query_text:
             highlighted = raw_text
             for qt in q_tokens:
                 pattern = re.compile(rf"\b{re.escape(qt)}\b", re.IGNORECASE)
-                highlighted = pattern.sub(lambda m: f'<mark style="background: linear-gradient(120deg, #fbbf24 0%, #f59e0b 100%); padding: 2px 4px; border-radius: 3px; font-weight: 600; color: #000;">{m.group(0)}</mark>', highlighted)
+
+                def _safe_mark(match: re.Match) -> str:
+                    start = match.start()
+                    snippet = highlighted[max(0, start - 30): start]
+                    if "smartta-highlight" in snippet:
+                        return match.group(0)
+                    return f'<mark class="smartta-highlight">{match.group(0)}</mark>'
+
+                highlighted = pattern.sub(_safe_mark, highlighted)
 
             st.markdown(f'<div style="line-height: 1.6; color: #b9c6d8;">{highlighted}</div>', unsafe_allow_html=True)
             st.markdown("")
