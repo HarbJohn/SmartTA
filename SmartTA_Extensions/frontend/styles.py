@@ -253,7 +253,6 @@ def render_search_header():
     st.markdown("""
 <div class="ta-header">
     <h2>💬 Ask the TA</h2>
-    <p>Semantic search across all lecture transcripts with AI-powered relevance ranking.</p>
 </div>
 <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%);
             padding: 0.6rem 1rem; border-radius: 10px; margin: 0.75rem 0 1.1rem 0;

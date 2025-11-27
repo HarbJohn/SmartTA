@@ -95,41 +95,20 @@ def render_instructor_dashboard() -> None:
     )
 
     st.markdown("---")
-    st.markdown("### 🔝 Top 10 Topics")
-    st.caption(
-        "Frequent 2–5 word phrases from student questions (stop-words removed) — provides deeper context."
+    st.markdown("---")
+    st.markdown("### ♻️ Repeated Questions")
+    repeats = (
+        df[df["q_norm"] != ""]
+        .groupby("q_norm")
+        .size()
+        .sort_values(ascending=False)
+        .reset_index(name="Times")
+        .rename(columns={"q_norm": "Question"})
     )
-    questions = df["question"].dropna().astype(str)
-    if not questions.empty and config.CountVectorizer:
-        try:
-            vectorizer = config.CountVectorizer(
-                ngram_range=(2, 5),
-                stop_words="english",
-                token_pattern=r"(?u)\b[a-zA-Z][a-zA-Z]+\b",
-            )
-            matrix = vectorizer.fit_transform(questions)
-            freqs = matrix.toarray().sum(axis=0)
-            vocab = vectorizer.get_feature_names_out()
-            topic_df = (
-                pd.DataFrame({"Phrase": vocab, "Count": freqs})
-                .sort_values("Count", ascending=False)
-                .head(10)
-            )
-            st.altair_chart(
-                alt.Chart(topic_df)
-                .mark_bar(color="#2e7cf6")
-                .encode(
-                    x="Count:Q",
-                    y=alt.Y("Phrase:N", sort="-x", axis=alt.Axis(labelFontSize=12, labelLimit=300)),
-                    tooltip=["Phrase", "Count"],
-                )
-                .properties(height=450, width=900),
-                use_container_width=True,
-            )
-        except Exception:
-            st.info("Not enough signal to compute topics yet.")
+    if not repeats.empty:
+        st.dataframe(repeats.head(12), use_container_width=True, height=300)
     else:
-        st.caption("No questions to analyze or scikit-learn missing.")
+        st.caption("No repeated questions yet.")
 
     st.markdown("---")
     st.markdown("### 📄 Most Referenced Slides")
@@ -238,21 +217,6 @@ def render_instructor_dashboard() -> None:
         .properties(height=300),
         use_container_width=True,
     )
-
-    st.markdown("---")
-    st.markdown("### ♻️ Repeated Questions")
-    repeats = (
-        df[df["q_norm"] != ""]
-        .groupby("q_norm")
-        .size()
-        .sort_values(ascending=False)
-        .reset_index(name="Times")
-        .rename(columns={"q_norm": "Question"})
-    )
-    if not repeats.empty:
-        st.dataframe(repeats.head(15), use_container_width=True, height=300)
-    else:
-        st.caption("No repeated questions yet.")
 
     st.markdown("### ☁️ Common Words in Student Questions")
     st.caption("Shows most frequent keywords extracted from student questions.")

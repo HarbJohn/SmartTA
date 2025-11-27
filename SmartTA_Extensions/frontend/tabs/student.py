@@ -416,8 +416,7 @@ def render_student_tab(
                 """
                 <div class="ai-followup-wrapper">
                     <div class="ai-followup-header">
-                        <h3> Ask Follow-up Question (AI-powered)</h3>
-                        <p>Let the AI synthesize the retrieved lecture segments with citations.</p>
+                        <h3> Ask Follow up Question</h3>
                     </div>
                     <div class="ai-followup-card">
                 """,

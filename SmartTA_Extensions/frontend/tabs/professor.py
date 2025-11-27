@@ -132,7 +132,7 @@ def render_professor_tab(
     
     # Smart Recommendations - Top Confused Topics
     st.markdown("---")
-    st.subheader(" Smart Recommendations - Top Confused Topics")
+    st.subheader(" Top Confused Topics")
 
     if os.path.exists(LOG_PATH):
         try:
@@ -180,18 +180,6 @@ def render_professor_tab(
                                 locations_text += f"• **{loc['lecture']}** @ {time_str}\n"
                                 locations_text += f"  _{loc['text']}_\n\n"
                             st.markdown(locations_text)
-                            share_text = f" {topic.title()}\n\n"
-                            share_text += f"Asked by students {data['count']} times\n\n"
-                            share_text += "Watch these sections:\n"
-                            for loc in data['locations'][:5]:
-                                time_str = f"{datetime.timedelta(seconds=int(loc['start']))}"
-                                share_text += f"- {loc['lecture']} at {time_str}\n"
-                            col1, col2 = st.columns([3, 1])
-                            with col1:
-                                st.text_area("Copy & Share with Students:", share_text, height=150, key=f"share_{i}")
-                            with col2:
-                                st.markdown("<br>", unsafe_allow_html=True)
-                                st.caption("👆 Copy this text to share with students")
                 else:
                     st.info("No queries yet. Students will start asking questions soon!")
             else:
