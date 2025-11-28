@@ -190,9 +190,7 @@ def render_professor_tab(
     else:
         st.info("No query data available yet. Start using the Student Assistant to see recommendations!")
 
-    # --------------------
     # Add YouTube Lecture
-    # --------------------
     st.markdown("---")
     st.markdown('<div id="add_lecture"></div>', unsafe_allow_html=True)
     st.subheader("📺 Add YouTube Lecture")
@@ -405,9 +403,8 @@ def render_professor_tab(
                         st.error(f"Error adding lecture: {str(e)}")
                         logger.error(f"Error adding YouTube lecture: {e}")
 
-    # --------------------
     # Manage Course Materials
-    # --------------------
+
     st.markdown("---")
     st.markdown('<div id="course_materials"></div>', unsafe_allow_html=True)
     st.subheader("📚 Manage Course Materials")
@@ -565,9 +562,9 @@ def render_professor_tab(
     else:
         st.info("No material sections created yet. Create your first section above!")
 
-    # --------------------
+    
     # Manage Existing Lectures
-    # --------------------
+    
     st.markdown("---")
     st.markdown('<div id="manage_lectures"></div>', unsafe_allow_html=True)
     st.subheader("🗂️ Manage Existing Lectures")
@@ -664,9 +661,9 @@ def render_professor_tab(
     else:
         st.info("No lectures added yet. Add your first lecture above!")
 
-    # --------------------
+    
     # Danger Zone: Clear All Data
-    # --------------------
+    
     st.markdown("---")
     st.subheader("Danger Zone")
     if st.button("Clear All Data"):
@@ -715,9 +712,9 @@ def render_professor_tab(
                 st.session_state['confirm_clear_all'] = False
                 st.rerun()
 
-    # --------------------
+    
     # Analytics Dashboard
-    # --------------------
+    
     st.markdown("---")
     st.markdown('<div id="analytics"></div>', unsafe_allow_html=True)
     st.subheader("📊 SmartTA Analytics Dashboard")
