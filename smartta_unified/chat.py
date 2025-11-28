@@ -95,6 +95,30 @@ def _confidence_from_chat(chat: Dict[str, Any]) -> float:
     return best
 
 
+_CITATION_RE = re.compile(r"\[pdf:(\d+)\]")
+
+
+def _normalize_citations(answer: str, contexts: list[Dict[str, Any]]) -> str:
+    if not answer:
+        return answer
+    page_to_pdf: Dict[str, str] = {}
+    for ctx in contexts or []:
+        pdf = ctx.get("pdf")
+        page = ctx.get("page")
+        if not pdf or page is None:
+            continue
+        page_to_pdf.setdefault(str(page), str(pdf))
+
+    def _replace(match: re.Match[str]) -> str:
+        page = match.group(1)
+        pdf = page_to_pdf.get(page)
+        if pdf:
+            return f"[{pdf}:{page}]"
+        return match.group(0)
+
+    return _CITATION_RE.sub(_replace, answer)
+
+
 def _render_chat_history() -> None:
     """Render chat history bubbles and diagnostics."""
     rag_engine = config.rag_engine1
@@ -465,10 +489,11 @@ def render_student_chat(k: int, min_conf: float, rag_query_limit: int) -> None:
             except Exception:
                 continue
 
+        normalized_answer = _normalize_citations(result.get("answer", ""), contexts)
         record = {
             "qid": str(uuid.uuid4()),
             "question": question,
-            "answer": result.get("answer", ""),
+            "answer": normalized_answer,
             "debug": result.get("page_scores", {}),
             "contexts": contexts,
             "confidence": confidence_val,
