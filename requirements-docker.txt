@@ -1,0 +1,41 @@
+# runtime dependencies for SmartTA Streamlit app
+streamlit==1.51.0
+pandas==2.3.3
+numpy==2.2.1
+scikit-learn==1.7.2
+matplotlib==3.10.7
+plotly==6.3.1
+
+# RAG engine + embeddings
+faiss-cpu==1.12.0
+sentence-transformers==5.1.2
+rank-bm25==0.2.2
+torch==2.9.0
+torchvision==0.24.0
+transformers==4.57.1
+tiktoken==0.12.0
+openai==2.3.0
+
+# transcription / video / yt ingestion
+openai-whisper @ git+https://github.com/openai/whisper.git@c0d2f624c09dc18e709e37c2ad90c039a4eb72a2
+yt-dlp==2025.10.22
+moviepy==2.2.1
+imageio==2.37.0
+imageio-ffmpeg==0.6.0
+ffmpeg-python==0.2.0
+
+# data / misc utilities
+python-dotenv==1.2.1
+requests==2.32.5
+huggingface-hub==0.35.3
+sentencepiece==0.2.1
+altair==5.5.0
+wordcloud==1.9.4
+psutil==7.1.0
+reportlab==4.2.5
+
+# image processing & OCR 
+opencv-python-headless==4.12.0.88
+easyocr==1.7.2
+pillow==11.3.0
+ 
