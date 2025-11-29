@@ -15,6 +15,7 @@ Every answer is explainable: retrieval diagnostics surface the exact slides and 
 
 - [Demo Video](#demo-video)
 - [Key Features](#key-features)
+- [Credentials](#credentials)
 - [High-Level Architecture](#high-level-architecture)
 - [Repository Structure](#repository-structure)
 - [Data & Index Files](#data--index-files)
@@ -51,6 +52,19 @@ For the best viewing experience, click the ⚙️ Settings icon (bottom-right co
 - **YouTube Integration:** Transcript ingestion, search, and analytics share the same question log as the main assistant.
 - **Feedback Insights:** Streamlit dashboards surface satisfaction, engagement, and the latest responses.
 - **Deployability:** Runs locally via `streamlit run` or in Docker using `python:3.11-slim`.
+
+---
+
+- **Deployability:** Runs locally via `streamlit run` or in Docker using `python:3.11-slim`.
+
+---
+
+## Credentials
+
+Use these credentials to access the instructor dashboards:
+
+- **Username:** `eece`
+- **Password:** `690`
 
 ---
 
