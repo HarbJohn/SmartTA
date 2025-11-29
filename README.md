@@ -17,14 +17,18 @@ Every answer is explainable: retrieval diagnostics surface the exact slides and 
 - Key Features
 - High-Level Architecture
 - Repository Structure
-- Data & Index Files
-- Environment Requirements
-- Local Setup & Run
-- Docker Workflow
-- Retrieval & Fusion Pipeline
-- Dashboards & Use Cases
-- Troubleshooting
-- Future Improvements
+- [Demo Video](#demo-video)
+- [Key Features](#key-features)
+- [High-Level Architecture](#high-level-architecture)
+- [Repository Structure](#repository-structure)
+- [Data & Index Files](#data--index-files)
+- [Environment Requirements](#environment-requirements)
+- [Local Setup & Run](#local-setup--run)
+- [Docker Workflow](#docker-workflow)
+- [Retrieval & Fusion Pipeline](#retrieval--fusion-pipeline)
+- [Dashboards & Use Cases](#dashboards--use-cases)
+- [Troubleshooting](#troubleshooting)
+- [Future Improvements](#future-improvements)
 
 ---
 
@@ -206,12 +210,13 @@ docker run --rm -p 8501:8501 \
 Replace `s...A` with your OpenAI API key.  
 Open [http://localhost:8501](http://localhost:8501) while the container runs.
 
-🧩 Note for Professor:
-• After running the Docker image, the YouTube system index takes about 1–2 minutes to load.
-• For the RAG module, after entering the first query, please allow 5–6 minutes for the CLIP ViT model, text transformer and embedding models to download and after that each query will take around 5-10 second depends if text or image.
-• On a 4G connection, this initial setup used approximately 3 GB of bandwidth and took around 5-6 minutes.
-• Once loaded, all components run smoothly and remain cached inside the container for subsequent queries as shown in short demo docker video.
-• Our Docker image size is 6.68 GB.
+🧩 **Note for Professor:**
+
+- After running the Docker image, the YouTube system index takes about 1–2 minutes to load.
+- For the RAG module, after entering the first query, allow 5–6 minutes for the CLIP ViT model, text transformer, and embedding models to download. After that, each query takes about 5–10 seconds (text/image dependent).
+- On a 4G connection, this initial setup used ~3 GB of bandwidth and took about 5–6 minutes.
+- Once loaded, all components run smoothly and remain cached inside the container (as shown in the short Docker demo).
+- The Docker image size is about 6.68 GB.
 
 ---
 
