@@ -14,10 +14,6 @@ Every answer is explainable: retrieval diagnostics surface the exact slides and 
 ## Table of Contents
 
 - [Demo Video](#demo-video)
-- Key Features
-- High-Level Architecture
-- Repository Structure
-- [Demo Video](#demo-video)
 - [Key Features](#key-features)
 - [High-Level Architecture](#high-level-architecture)
 - [Repository Structure](#repository-structure)
