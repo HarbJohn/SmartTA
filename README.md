@@ -75,41 +75,55 @@ SmartTA/
 │
 ├─ SmartTA_Extensions/ # Youtube System
 │ ├─ backend/
-│ │ ├─ analytics.py # Aggregations, charts data prep
-│ │ ├─ indexing.py # Transcript ingestion, chunking helpers
-│ │ ├─ search.py, video.py # YouTube-specific search logic
-│ │ └─ transcription.py # Speech-to-text utilities
+│ │ ├─ analytics.py # Query logging to youtube_queries_log.json, Plotly chart generation (lecture frequency, query timeline, engagement metrics, learning paths), 60s cached data loading
+│ │ ├─ indexing.py # FAISS index management with SentenceTransformer embeddings (all-MiniLM-L6-v2), IVF-PQ optimization for >10k segments, incremental indexing, nprobe tuning, auto-reindexing on startup, progress tracking with ETA
+│ │ ├─ resources.py # Singleton pattern for models (sentence-transformer all-MiniLM-L6-v2, cross-encoder ms-marco-MiniLM-L-6-v2) and FAISS index to prevent redundant loading, reduces memory footprint, optional optimization layer
+│ │ ├─ search.py # Levenshtein typo correction (edit distance, corpus vocabulary matching), hybrid search combining FAISS semantic + BM25 lexical + phrase matching + token overlap, query expansion with synonyms, deduplication, question-type detection (factual/conceptual/procedural), adaptive weighting, optional cross-encoder reranking
+│ │ ├─ transcription.py # YouTube audio download via yt-dlp with MP3 extraction, Whisper transcription (tiny model, CPU-forced, timestamp extraction), exponential backoff retry with MAX_RETRIES, incremental processing for new lectures, metadata rebuilding, segment storage in segments_metadata.json
+│ │ └─ video.py # FFmpeg wrapper for extracting video/audio duration (regex parsing of ffmpeg output), used during transcription validation and lecture metadata building
 │ │
 │ ├─ data/
-│ │ ├─ lectures/, transcripts/ # YouTube metadata & embeddings
-│ │ ├─ uploaded_files/.gitkeep # Placeholder for uploaded slides
-│ │ ├─ course_materials.json, metadata.json, segments_metadata.json
-│ │ └─ course.index # Index representation for transcripts
+│ │ ├─ lectures/, transcripts/ # YouTube lecture metadata JSON files (individual per lecture), Whisper text transcripts
+│ │ ├─ uploaded_files/.gitkeep # Placeholder directory for course materials (PDFs, docs)
+│ │ ├─ course_materials.json, metadata.json, segments_metadata.json # Course materials index, FAISS metadata, timestamped transcript segments with embeddings
+│ │ └─ course.index # FAISS vector index for semantic search over YouTube transcripts
 │ │
-│ └─ frontend/
-│ ├─ tabs/student.py # Student tab UI (YouTube context)
-│ ├─ tabs/professor.py # Professor tab UI (YouTube analytics)
-│ ├─ components.py, styles.py, types.py
-│ └─ __init__.py # Streamlit entry helpers
+│ ├─ frontend/
+│ │ ├─ tabs/
+│ │ │ ├─ student.py # Search interface with query input, optional lecture-only filter, typo correction (Levenshtein + corpus vocab), hybrid semantic+BM25 scoring in quality mode by default, phrase & token overlap bonuses, duplicate filtering, result caching, timestamp jump (?start autoplay), AI follow-up form using top segments with GPT model; optional precision rerank used when cross-encoder is available
+│ │ │ └─ professor.py # Control panel (refresh, clear analytics, clean index, clear all), confused topics aggregation from query logs, YouTube lecture ingestion (category creation, URL validation, professor notes), lecture CRUD (add/edit/delete), course materials management (section grouping, ordering, uploads with notes & deletion), analytics (lecture frequency, timeline distributions, hourly patterns via Plotly or fallback)
+│ │ ├─ components.py # Grouped results by lecture with category color badges, optional professor note display, score & keyword overlap badges, simple regex-based query term highlighting, timestamp jump button storing session state, course materials expander with secure download buttons
+│ │ ├─ styles.py # Dark theme CSS with glassmorphism effects, gradient backgrounds, confetti/toast animations for user actions, skeleton loaders for async operations, mobile responsive breakpoints, custom gradient buttons with hover effects, scrollbar styling, card shadows and borders
+│ │ └─ types.py # TypedDict definitions for type safety across modules (Segment with text/start/end/category, SearchResult with score/lecture/timestamp, MaterialFile with name/path/size/uploaded_at, MaterialSection with title/files, LectureInfo with id/title/url/category/duration, YouTubeData with lectures dict)
+│ │
+│ └─ utils/
+│ ├─ config.py # Centralized configuration constants (DATA_DIR, MODEL_DIR paths, DEVICE=CPU/CUDA detection, INDEX_PATH, META_PATH, LOG_PATH with migration logic from extensions to project root, retry parameters MAX_RETRIES=3/RETRY_DELAY=2, search hyperparameters TOP_K=5/NPROBE=10, Whisper model size "tiny", embedding dimension EMBED_DIM=384)
+│ ├─ helpers.py # YouTube lecture database utilities (load_yt_data, save_yt_data for individual JSON files in lectures/), YouTube ID extraction with 4 regex patterns (youtu.be, youtube.com/watch, youtube.com/embed, /v/ formats), process_with_progress wrapper for ETA display, safe JSON load/save with exception handling, get_all_lectures for metadata aggregation, file operation helpers for upload management
+│ └─ check_imports.py # Diagnostic script testing critical dependencies (streamlit, faiss-cpu, sentence-transformers, openai-whisper, torch, yt-dlp, rank-bm25) with colored OK/FAIL output, import error messages for troubleshooting, can be run standalone for environment validation
 │
 ├─ SmartTA_RAG/ #Course slide System Data
 │ ├─ data/
 │ │ ├─ raw/ # Original PDFs/slides
 │ │ └─ index/ # See section “Data & Index Files”
 │ ├─ rag_engine1.py # Legacy RAG engine notebook/runner
-│ └─ All_Chapters_Rag_ipynb # notebook
-│ └─ .env # Contains OPENAI_API_KEY
+│ └─ All_chapters_Rag.ipynb # Jupyter notebook
+│ └─ .env (create locally) # Contains OPENAI_API_KEY
 │
-├─ smartta_unified/ # Combining Slides and Youtube System together
-│ ├─ rag/ #Course slide System Functionalities
-│ │ ├─ embeddings.py, search.py, engine.py # Core RAG logic, hybrid scoring
-│ │ └─ __init__.py
-│ ├─ chat.py # Student Assistant layout & logic
-│ ├─ dashboard.py # Slides Instructor dashboard
-│ ├─ youtube.py # YouTube tab bridging to SmartTA_Extensions
-│ ├─ feedback.py # Course feedback tab
-│ ├─ helpers.py, style.py # Shared theming, session utilities
-│ └─ main.py # Streamlit entrypoint
+├─ smartta_unified/ # Unified application combining slides RAG and YouTube systems
+│ ├─ rag/ # Core RAG engine for slide/PDF search
+│ │ ├─ embeddings.py # OpenAI text-embedding-3-large embeddings, CLIP ViT-L/14 image/text encoding, lazy model loading, L2 normalization for cosine similarity
+│ │ ├─ search.py # Hybrid search combining OpenAI dense embeddings (FAISS) + BM25 lexical scoring (rank_bm25), CLIP image-to-image search, CLIP text-to-image cross-modal search, minmax score normalization, configurable fusion weights (0.6 dense + 0.4 BM25)
+│ │ ├─ engine.py # High-level answer generation with GPT-4o-mini, adaptive signal fusion (text embeddings, BM25, CLIP text→image, CLIP image→image, page-level bonuses), visual focus detection for image queries, retrieval diagnostics with per-signal scoring, citation formatting [pdf:page]
+│ │ ├─ indexes.py # FAISS index loading (text.faiss, images_*.faiss), chunk metadata (chunks.jsonl, chunk_meta.jsonl, image_meta.jsonl), BM25 index initialization, page-to-chunk mapping (page_to_chunk_ids.pkl), CLIP model tag generation for file naming
+│ │ ├─ settings.py # Configuration constants (OpenAI API key, model IDs, index paths, device detection CPU/CUDA, epsilon for numerical stability)
+│ │ └─ state.py # Global state management (FAISS indexes, embeddings, chunks/metadata lists, CLIP model singletons, BM25 index)
+│ ├─ chat.py # Student Assistant UI (question input, image upload, conversation history, retrieval diagnostics accordion, answer streaming, feedback collection)
+│ ├─ dashboard.py # Slides Instructor Dashboard (query analytics, repeated questions analysis, referenced slides histogram, confidence metrics, query logs export, Plotly visualizations)
+│ ├─ youtube.py # YouTube system tab integration (bridges to SmartTA_Extensions, renders YouTube lecture search and professor dashboard)
+│ ├─ feedback.py # Course feedback dashboard (satisfaction metrics aggregation, engagement analysis, response table with filters, CSV data reading from course_feedback.csv)
+│ ├─ helpers.py # Shared utilities (session state management, PDF filtering, safe JSON operations)
+│ ├─ style.py # CSS styling (dark theme, gradient backgrounds, card styling, mobile responsiveness)
+│ └─ main.py # Streamlit entrypoint (mode switcher for Student/Instructor/YouTube/Feedback tabs, index initialization, session state setup, page config)
 │
 ├─ requirements-docker.txt # Runtime deps for container build
 ├─ requirements.txt # Full dev dependency set
